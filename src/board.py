@@ -1,0 +1,1 @@
+# Lớp Board và định nghĩa đối tượng Piece

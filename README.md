@@ -10,5 +10,5 @@ Giao diện có thể là Console hoặc GUI.
 - `docs/`: Tài liệu, sơ đồ hệ thống, hướng dẫn.
 
 ## Hướng dẫn cài đặt và chạy dự án
-
+- Trong /src, chạy lệnh: python main.py
 ...
