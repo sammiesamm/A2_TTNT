@@ -1,4 +1,3 @@
-# Lớp Board và định nghĩa đối tượng Piece
 
 
 
@@ -75,9 +74,7 @@ class Rule:
     def BISHOP(pos,board,state):
         x,y=pos
         lst=[]
-        print(x,y)
         def check(x,y):
-            print(x,y)
             if x<0 or y<0 or y>7 or x>7: return 0
             piece=board[x][y]
             if piece is not None:
@@ -176,15 +173,22 @@ class Board:
             x,y=pos
             if self.board[x][y] is not None:
                 self.board[x][y].setState(0)
+                typ=self.board[x][y].getType()
                 self.board[x][y]=piece
                 piece_x,piece_y=piece.getPos()
                 self.board[piece_x][piece_y]=None
+                if typ[1]=='K': 
+                    piece.moveTo(pos)
+                    return 2
+                if piece.getType()[1]=='P' and (x == 0 or x == 7):
+                    piece.moveTo(pos)
+                    return 3
             else:
                 piece_x,piece_y=piece.getPos()
                 self.board[x][y],self.board[piece_x][piece_y]=self.board[piece_x][piece_y],self.board[x][y]
             piece.moveTo(pos)
-            return True
-        return False
+            return 1
+        return 0
     def getBlackPieces(self):
         return self.B
     def getWhitePieces(self):
@@ -209,10 +213,14 @@ class ChessPiece:
         return self.__pos
     def getType(self):
         return self.__type
+    def setType(self,type):
+        self.__type =type
     def getState(self):
         return self.__state
     def setState(self,val):
         self.__state=val
+    def setRule(self,rule):
+        self.__get_valid_pos=rule
     def getValidPos(self):
         return self.__get_valid_pos(self.__pos,self.__board,self.__state)
     def moveTo(self,pos):
