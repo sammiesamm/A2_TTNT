@@ -1,6 +1,6 @@
 import unittest
 from src.board import Board, Piece
-from src.move_generator import generate_moves
+from src.move_generator import Board, Piece, generate_moves
 
 class TestMoveGeneration(unittest.TestCase):
     def setUp(self):
@@ -45,7 +45,7 @@ class TestMoveGeneration(unittest.TestCase):
         board.castling_rights["white"]["king_side"] = True
 
         moves = generate_moves(board)
-        castling_move_kingside = ((7, 4), (7, 6))
+        castling_move_kingside = ((7, 4), (7, 6), None)
         self.assertIn(castling_move_kingside, moves,
                       "Nước đi nhập thành bên vua (kingside) không được sinh ra khi điều kiện thỏa mãn.")
 
@@ -58,7 +58,7 @@ class TestMoveGeneration(unittest.TestCase):
         board.castling_rights["white"]["queen_side"] = True
 
         moves = generate_moves(board)
-        castling_move_queenside = ((7, 4), (7, 2))
+        castling_move_queenside = ((7, 4), (7, 2), None)
         self.assertIn(castling_move_queenside, moves,
                       "Nước đi nhập thành bên hậu (queenside) không được sinh ra khi điều kiện thỏa mãn.")
 
@@ -66,41 +66,47 @@ class TestMoveGeneration(unittest.TestCase):
         """
         Thiết lập bàn cờ sao cho một tốt trắng sắp đạt đến hàng cuối (hàng 0).
         Kiểm tra rằng nước đi từ vị trí của tốt sang hàng 0 được sinh ra.
-        (Lưu ý: Chưa thêm logic phong cấp, nhưng nước đi di chuyển đến hàng cuối cũng cần được sinh ra.)
         """
         board = Board()
         board.current_turn = "white"
-        # Xóa hàng 0 để đảm bảo ô đó trống
-        for col in range(8):
-            board.grid[0][col] = None
-        # Đặt một quân tốt trắng tại vị trí (1,4) để có thể di chuyển lên hàng 0
-        board.grid[1][4] = Piece("pawn", "white")
-        moves = generate_moves(board)
-        promotion_move = ((1, 4), (0, 4))
-        self.assertIn(promotion_move, moves,
-                      "Nước đi phong cấp của tốt (di chuyển từ (1,4) sang (0,4)) không được sinh ra.")
-
-    def test_en_passant(self):
-        """
-        Thiết lập trường hợp en passant:
-          - Giả lập quân tốt trắng tại (3,4).
-          - Thiết lập board.en_passant_target là (2,5) (nước đi bắt en passant cho tốt trắng từ (3,4)).
-        Kiểm tra rằng nước đi en passant được sinh ra.
-        """
-        board = Board()
-        board.current_turn = "white"
-        # Xóa bàn cờ để tạo môi trường test đơn giản
+        # Xóa toàn bộ bàn cờ
         for r in range(8):
             for c in range(8):
                 board.grid[r][c] = None
-        # Đặt quân tốt trắng tại (3,4)
-        board.grid[3][4] = Piece("pawn", "white")
-        # Giả sử quân đối phương vừa di chuyển và board.en_passant_target được đặt tại (2,5)
-        board.en_passant_target = (2, 5)
+        # Đặt một vua trắng tại vị trí an toàn (ví dụ: (7,4))
+        board.set_piece((7, 4), Piece("king", "white"))
+        # Đặt quân tốt trắng cần test tại vị trí (1,4)
+        board.set_piece((1, 4), Piece("pawn", "white"))
+        # Đảm bảo hàng 0 trống (để tốt có thể phong cấp)
+        for col in range(8):
+            board.grid[0][col] = None
         moves = generate_moves(board)
-        en_passant_move = ((3, 4), (2, 5))
+        promotion_move = ((1, 4), (0, 4), "queen")
+        self.assertIn(promotion_move, moves,
+                    "Nước đi phong cấp của tốt (di chuyển từ (1,4) sang (0,4)) không được sinh ra.")
+
+    def test_en_passant(self):
+        board = Board()
+        board.current_turn = "white"
+        # Xóa bàn cờ hoàn toàn
+        for r in range(8):
+            for c in range(8):
+                board.grid[r][c] = None
+        
+        # Đặt vua trắng ở vị trí an toàn, ví dụ (7,4)
+        board.set_piece((7,4), Piece("king", "white"))
+        
+        # Đặt quân tốt trắng tại (3,4)
+        board.set_piece((3,4), Piece("pawn", "white"))
+        
+        # Thiết lập en_passant_target = (2,5)
+        board.en_passant_target = (2,5)
+        
+        moves = generate_moves(board)
+        
+        en_passant_move = ((3,4), (2,5), None)
         self.assertIn(en_passant_move, moves,
-                      "Nước đi en passant từ (3,4) sang (2,5) không được sinh ra khi điều kiện thỏa mãn.")
+                    "Nước đi en passant từ (3,4) sang (2,5) không được sinh ra khi điều kiện thỏa mãn.")
 
 if __name__ == '__main__':
     unittest.main()
