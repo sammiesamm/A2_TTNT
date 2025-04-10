@@ -82,6 +82,34 @@ piece_position_scores = {"wN": knight_scores,
 
 
 class AIEngine:
+    def __init__(self, aiTurn):
+        self.aiTurn = aiTurn
+        self.bestMove = None
+        self.total_nodes = 0
+        self.total_branch_cutoff = 0
+        self.total_nodes_leaf = 0
+        self.maxScore = 0
+        self.executionTime = 0
+        self.algoSearch = 'Alpha Beta'
+        self.isEndGame = False
+        self.timeGenerateMoves = 0
+        
+    def __checkEndGame(gs):
+        if gs.piece_ingame['wQ'] == 0 and gs.piece_ingame['bQ'] == 0:
+            return True
+        if gs.piece_ingame['wQ'] == 1 and gs.piece_ingame['bQ'] == 1:
+            white_minor_piece = 0
+            black_minor_piece = 0
+            for u, v in gs.piece_ingame.items():
+                if u[1] == 'N' or u[1] == 'B':
+                    if u[0] == 'w':
+                        white_minor_piece += v
+                    else:
+                        black_minor_piece += v
+            if white_minor_piece <= 1 and black_minor_piece <= 1:
+                return True
+
+        return False
 
     # Heuristic 1
     @staticmethod
