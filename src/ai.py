@@ -224,7 +224,7 @@ def minimax_ab_tree(board, depth, alpha, beta, is_maximizing, last_move=None):
     if is_maximizing:
         max_eval = float('-inf')
         for move in board.legal_moves:
-            if beta <= alpha:  # Nếu đã bị cắt tỉa, dừng ngay
+            if alpha >= beta:  # Nếu đã bị cắt tỉa, dừng ngay
                 tree_node.pruned = True
                 break
 
@@ -264,6 +264,16 @@ def minimax_ab_tree(board, depth, alpha, beta, is_maximizing, last_move=None):
 
         tree_node.value = min_eval if min_eval != float('inf') else beta
         return tree_node.value, best_moves, tree_node
+
+def move_to_coords(move):
+    def pos_to_coord(pos):
+        col = ord(pos[0]) - ord('a')       # chuyển 'a'-'h' thành 0-7
+        row = 8 - int(pos[1])              # chuyển '1'-'8' thành 7-0
+        return (row, col)
+
+    from_pos = move[:2]
+    to_pos = move[2:]
+    return pos_to_coord(from_pos), pos_to_coord(to_pos)
 
 def iterative_deepening_tree(board, max_depth, time_limit):
     """
@@ -308,6 +318,7 @@ def iterative_deepening_tree(board, max_depth, time_limit):
     elapsed_time = time.time() - start_time
     print(f"\nTổng thời gian tìm kiếm: {elapsed_time:.2f} giây")
     print(f"Độ sâu đạt được: {depth_reached}")
+    best_move = move_to_coords(best_move)
     return best_move, best_eval, depth_reached
 
 def get_user_move(board):
@@ -367,7 +378,7 @@ if __name__ == "__main__":
     print("=== Mini Game Cờ Vua ===")
     
     # Thiết lập thông số cho AI
-    max_depth = 5
+    max_depth = 4
     time_limit = 300
     
     # Bắt đầu trò chơi
@@ -384,8 +395,8 @@ if __name__ == "__main__":
             best_move, evaluation, depth_reached = iterative_deepening_tree(board, max_depth, time_limit)
             if best_move:
                 move = chess.Move.from_uci(best_move)
-                print(f"AI chọn nước đi: {best_move} với đánh giá: {evaluation}")
                 board.push(move)
+                print(f"AI chọn nước đi: {best_move} với đánh giá: {evaluation}")
             else:
                 print("AI không tìm được nước đi hợp lệ.")
                 break
