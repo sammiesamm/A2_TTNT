@@ -1,9 +1,6 @@
 import math
 import time
 
-from engine.ChessEngine import GameState
-from src.config import DEPTH
-
 piece_score = {"K": 20000, "Q": 900, "R": 500, "B": 330, "N": 320, "p": 100}
 
 pawn_scores = [[0, 0, 0, 0, 0, 0, 0, 0],
@@ -11,8 +8,8 @@ pawn_scores = [[0, 0, 0, 0, 0, 0, 0, 0],
                [10, 10, 20, 30, 30, 20, 10, 10],
                [5, 5, 10, 25, 25, 10, 5, 5],
                [0, 0, 0, 20, 20, 0, 0, 0],
-               [5, 5, 10, 0, 0, 10, 5, 5],
-               [5, 10, 10, 20, 20, 10, 10, 5],
+               [5, -5,-10,  0,  0,-10, -5,  5],
+               [5, 10, 10,-20,-20, 10, 10,  5],
                [0, 0, 0, 0, 0, 0, 0, 0]]
 
 knight_scores = [[-50, -40, -30, -30, -30, -30, -40, -50],
@@ -120,3 +117,20 @@ class AIEngine:
                     else:
                         score -= piece_position_scores[piece][row][col]
         return score
+    def evaluation(self, gs):
+        if self.aiTurn == 'b':
+            score = self.getPiecePositionScore(gs) + AIEngine.getMaterialScore(gs)
+        else:
+            score = - self.getPiecePositionScore(gs) - AIEngine.getMaterialScore(gs)
+        return score
+
+# gs.board = [
+#     ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+#     ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
+#     ["--", "--", "--", "--", "--", "--", "--", "--"],
+#     ["--", "--", "--", "--", "--", "--", "--", "--"],
+#     ["--", "--", "--", "--", "--", "--", "--", "--"],
+#     ["--", "--", "--", "--", "--", "--", "--", "--"],
+#     ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
+#     ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
+# ]
