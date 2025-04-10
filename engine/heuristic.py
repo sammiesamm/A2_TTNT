@@ -1,6 +1,8 @@
 import math
 import time
 
+from engine.ChessEngine import GameState
+
 piece_score = {"K": 20000, "Q": 900, "R": 500, "B": 330, "N": 320, "p": 100}
 
 pawn_scores = [[0, 0, 0, 0, 0, 0, 0, 0],
