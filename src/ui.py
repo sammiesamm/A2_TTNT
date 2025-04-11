@@ -6,6 +6,7 @@ from ChessEngine import GameState,Move
 from random import randint
 import threading
 from copy import deepcopy
+import os 
 class ChessUI:
     def __init__(self):
         class Player:
@@ -82,7 +83,8 @@ class ChessUI:
         self.square_size = self.WIDTH // 8
     
         self.pieces=['BR','BN','BB','BQ','BK','BP','WR','WN','WB','WQ','WK','WP']   
-        self.pieces=dict(map(lambda x:(x,pg.transform.smoothscale(pg.image.load("chesspieces/"+x+".png"),(self.square_size,self.square_size))),self.pieces))
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.pieces=dict(map(lambda x:(x,pg.transform.smoothscale(pg.image.load(BASE_DIR+ "/chesspieces/"+x+".png"),(self.square_size,self.square_size))),self.pieces))
         self.font = pg.font.SysFont("arial", self.WIDTH//10)
         self.font1 = pg.font.SysFont("arial", self.WIDTH//20)
         self.rect=[Rect(self.WIDTH*0.3,1*self.WIDTH/10+self.WIDTH/4,self.WIDTH*0.4,self.WIDTH/14),

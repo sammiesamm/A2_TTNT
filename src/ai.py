@@ -1,5 +1,4 @@
 import math
-from ChessEngine import GameState
 from heuristic import AIEngine
 
 class TreeNode:
