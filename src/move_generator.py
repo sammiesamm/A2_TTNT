@@ -1,1 +1,0 @@
-# Hàm generate_moves(board) và các hàm con cho từng loại quân
