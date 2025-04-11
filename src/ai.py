@@ -113,10 +113,3 @@ class AI:
         return best_move, best_eval, depth_reached
 
 
-
-
-if __name__ == "__main__":
-    gs=GameState('B')
-    ai=AI(gs,'B')
-    print(ai.iterative_deepening_tree(10,20))
- 
