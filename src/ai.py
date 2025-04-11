@@ -19,12 +19,6 @@ class AI:
     def __init__(self, gs, turn):
         self.gs = gs
         self.engine = AIEngine(turn)
-    # def setTurn(self,turn):
-    #     self.engine.aiTurn=turn
-   
-    def move_to_coords(self,move):
-      
-        return move.sqStart,move.sqEnd
 
     def minimax_ab_tree(self, depth, alpha, beta, is_maximizing, last_move=None):
         """
