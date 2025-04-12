@@ -140,8 +140,14 @@ class ChessUI:
                     rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                     row,col=self.player2.last_move.sqStart
                     rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                    pg.draw.rect(rect_surface, (150,180,0), rect1)
-                    pg.draw.rect(rect_surface, (150,180,0), rect2)
+                    if self.gs.kingLocation['W'] in self.gs._getAttackSquare(self.board):
+                        row,col= self.gs.kingLocation['W'] 
+                        rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                        pg.draw.rect(rect_surface, (255,0,0), rect3)
+                        pg.draw.rect(rect_surface, (255,0,0), rect1)
+                    else:
+                        pg.draw.rect(rect_surface, (150,180,0), rect1)
+                        pg.draw.rect(rect_surface, (150,180,0), rect2)
                     surf=pg.transform.smoothscale(rect_surface,(self.WIDTH,self.WIDTH))
                     self.screen.blit(surf, (0, 0))  
             else:
@@ -153,8 +159,14 @@ class ChessUI:
                     rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                     row,col=self.player1.last_move.sqStart
                     rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                    pg.draw.rect(rect_surface, (150,180,0), rect1)
-                    pg.draw.rect(rect_surface, (150,180,0), rect2)
+                    if self.gs.kingLocation['B'] in self.gs._getAttackSquare(self.board):
+                        row,col= self.gs.kingLocation['B'] 
+                        rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                        pg.draw.rect(rect_surface, (255,0,0), rect3)
+                        pg.draw.rect(rect_surface, (255,0,0), rect1)
+                    else:
+                        pg.draw.rect(rect_surface, (150,180,0), rect1)
+                        pg.draw.rect(rect_surface, (150,180,0), rect2)
                     surf=pg.transform.smoothscale(rect_surface,(self.WIDTH,self.WIDTH))
                     self.screen.blit(surf, (0, 0))  
             if self.players[0].pickup is not None:
