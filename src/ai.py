@@ -1,4 +1,3 @@
-import math
 from heuristic import AIEngine
 
 class TreeNode:
@@ -18,6 +17,7 @@ class AI:
     def __init__(self, gs, turn):
         self.gs = gs
         self.engine = AIEngine(turn)
+        self.turn =turn
 
     def minimax_ab_tree(self, depth, alpha, beta, is_maximizing, last_move=None):
         """
@@ -86,7 +86,7 @@ class AI:
         Sau mỗi độ sâu, chờ người dùng bấm Enter để hiển thị cây tìm kiếm.
         """
         best_move = None
-        is_maximizing = True if self.gs.getTurn() == 'B' else False
+        is_maximizing = True if self.gs.getTurn() == self.turn else False
         best_eval = float('-inf') if is_maximizing else float('inf')
         depth_reached = 0
         
@@ -99,10 +99,6 @@ class AI:
                     best_eval = eval_val
                     best_move = moves[0]
             depth_reached = depth
-            
-            if not math.isinf(best_eval) and abs(best_eval) > 20000:
-                print(f"Đã tìm thấy nước đi chiếu hết ở độ sâu {depth}")
-                break
         return best_move, best_eval, depth_reached
 
 

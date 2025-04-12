@@ -12,8 +12,10 @@ class ChessUI:
         class Player:
             def __init__(self,gs:GameState):
                 self.gs=gs
+                self.last_move=None
             def Act(self,turn,events=None): return 1
-            def reset(self):pass
+            def reset(self):
+                self.last_move=None
         class Human(Player):
             def __init__(self,gs,size):
                 super().__init__(gs)
@@ -41,7 +43,9 @@ class ChessUI:
                                 if move == temp:
                                     if move.isPawnPromotion:
                                         self.promove=move
+                                        self.last_move=move
                                         return 3
+                                    self.last_move=move
                                     return self.gs.makeMove(move)
                 return None
             def reset(self):self.pickup=None
@@ -55,8 +59,8 @@ class ChessUI:
             def setmode(self,Mode):
                 self.mode=Mode
             def _act(self):
-                # self.ai.setTurn(turn)
-                move,_,_=self.ai.iterative_deepening_tree(2*self.mode-1)
+                move,_,_=self.ai.iterative_deepening_tree(self.mode+1)
+                self.last_move=move
                 if self.gs.makeMove(move) ==0: self.reval= 2
                 else: self.reval= 1
             def Act(self,turn,events=None):
@@ -68,11 +72,23 @@ class ChessUI:
                     self.thread=None
                     return self.reval      
         class RandomBot(Player):
+            def __init__(self,gs):
+                super().__init__(gs)
+                self.thread=None
+            def _act(self):
+                pg.time.delay(500)
             def Act(self,turn,events=None):
-                list_move =self.gs.getValidMoves()
-                if len(list_move)==0: return 2
-                move=list_move[randint(0,len(list_move)-1)]
-                return self.gs.makeMove(move)
+                if self.thread==None:
+                    self.thread=threading.Thread(target=self._act)
+                    self.thread.start()
+                else:
+                    if self.thread.is_alive(): return 0
+                    list_move =self.gs.getValidMoves()
+                    self.thread=None
+                    if len(list_move)==0: return 2
+                    move=list_move[randint(0,len(list_move)-1)]
+                    self.last_move=move
+                    return self.gs.makeMove(move)
         pg.init()
         self.clock = pg.time.Clock()
         
@@ -113,6 +129,32 @@ class ChessUI:
                     color = (240, 217, 181) if (row + col) % 2 == 0 else (181, 136, 99)
                     rect = (col * self.square_size, row * self.square_size, self.square_size, self.square_size)
                     pg.draw.rect(self.screen, color, rect)
+            if self.turn:
+                if self.player2.last_move:
+                    up_scale=5
+                    rect_surface = pg.Surface((self.WIDTH*up_scale, self.WIDTH*up_scale), pg.SRCALPHA) 
+                    rect_surface.set_alpha(60) 
+                    row,col=self.player2.last_move.sqEnd
+                    rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                    row,col=self.player2.last_move.sqStart
+                    rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                    pg.draw.rect(rect_surface, (150,180,0), rect1)
+                    pg.draw.rect(rect_surface, (150,180,0), rect2)
+                    surf=pg.transform.smoothscale(rect_surface,(self.WIDTH,self.WIDTH))
+                    self.screen.blit(surf, (0, 0))  
+            else:
+                if self.player1.last_move:
+                    up_scale=5
+                    rect_surface = pg.Surface((self.WIDTH*up_scale, self.WIDTH*up_scale), pg.SRCALPHA) 
+                    rect_surface.set_alpha(60) 
+                    row,col=self.player1.last_move.sqEnd
+                    rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                    row,col=self.player1.last_move.sqStart
+                    rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                    pg.draw.rect(rect_surface, (150,180,0), rect1)
+                    pg.draw.rect(rect_surface, (150,180,0), rect2)
+                    surf=pg.transform.smoothscale(rect_surface,(self.WIDTH,self.WIDTH))
+                    self.screen.blit(surf, (0, 0))  
             if self.players[0].pickup is not None:
                 up_scale=5
                 rect_surface = pg.Surface((self.WIDTH*up_scale, self.WIDTH*up_scale), pg.SRCALPHA) 
@@ -151,10 +193,20 @@ class ChessUI:
                 text_surf= self.font1.render("SELECT PLAYER 2",True,(0,0,0))
                 self.screen.blit(text_surf,text_surf.get_rect(center=(self.WIDTH*0.5,self.WIDTH*0.59)))
             elif self.mode==2 or self.mode==3:
+                
                 pg.draw.rect(self.screen,(50,50,50),Rect(self.WIDTH/10,self.WIDTH/10,self.WIDTH*0.8,self.WIDTH*0.8),border_radius=self.WIDTH//40)
                 pg.draw.rect(self.screen,(255,255,255),self.rect[0],border_radius=self.WIDTH//40)
                 pg.draw.rect(self.screen,(255,255,255),self.rect[1],border_radius=self.WIDTH//40)
                 pg.draw.rect(self.screen,(255,255,255),self.rect[2],border_radius=self.WIDTH//40)
+                if self.mode==2:
+                    if type(self.player1) is type(self.players[0]): idx=0
+                    elif type(self.player1) is type(self.players[1]): idx = 1
+                    else :idx =2
+                else:
+                    if type(self.player2) is type(self.players[0]): idx=0
+                    elif type(self.player2) is type(self.players[2]): idx = 1
+                    else :idx =2
+                pg.draw.rect(self.screen,(120,180,0),self.rect[idx],border_radius=self.WIDTH//40,width=5)
                 text_surf= self.font.render("SELECT PLAYER",True,(255,255,255))
                 self.screen.blit(text_surf,text_surf.get_rect(center=(self.WIDTH*0.5,self.WIDTH*0.25)))
                 text_surf= self.font1.render("HUMAN",True,(0,0,0))
@@ -168,6 +220,9 @@ class ChessUI:
                 pg.draw.rect(self.screen,(255,255,255),self.rect[0],border_radius=self.WIDTH//40)
                 pg.draw.rect(self.screen,(255,255,255),self.rect[1],border_radius=self.WIDTH//40)
                 pg.draw.rect(self.screen,(255,255,255),self.rect[2],border_radius=self.WIDTH//40)
+                if self.mode==4: idx=self.players[1].mode-1 
+                else: idx=self.players[2].mode-1 
+                pg.draw.rect(self.screen,(120,180,0),self.rect[idx],border_radius=self.WIDTH//40,width=5)
                 text_surf= self.font.render("MODE",True,(255,255,255))
                 self.screen.blit(text_surf,text_surf.get_rect(center=(self.WIDTH*0.5,self.WIDTH*0.25)))
                 text_surf= self.font1.render("EASY",True,(0,0,0))
