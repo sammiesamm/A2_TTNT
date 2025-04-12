@@ -48,7 +48,9 @@ class ChessUI:
                                     self.last_move=move
                                     return self.gs.makeMove(move)
                 return None
-            def reset(self):self.pickup=None
+            def reset(self):
+                super().reset()
+                self.pickup=None
         class Bot(Player):
             def __init__(self,gs,turn):
                 super().__init__(gs)
@@ -252,7 +254,6 @@ class ChessUI:
                 self.screen.blit(self.pieces[p+"B"],(3*self.WIDTH*0.174,self.WIDTH*0.438))
                 self.screen.blit(self.pieces[p+"Q"],(4*self.WIDTH*0.174,self.WIDTH*0.438))
         
-                
         draw_board()
         draw_pieces()
         if self.mode!=0 : menu()
@@ -359,7 +360,7 @@ class ChessUI:
                 self.gs.undoMove()
                 self.updateBoard()
             if self.mode==7:
-                if keys[K_RETURN] and  not current_key[K_RETURN]:
+                if any(keys):
                     self.mode=1
                     self.lockmenu=True
             elif self.mode==0:
