@@ -140,7 +140,7 @@ class ChessUI:
                     rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                     row,col=self.player2.last_move.sqStart
                     rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                    if self.gs.kingLocation['W'] in self.gs._getAttackSquare(self.board):
+                    if self.gs.kingLocation['W'] in self.gs.getAttackSquare('B',self.board):
                         row,col= self.gs.kingLocation['W'] 
                         rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                         pg.draw.rect(rect_surface, (255,0,0), rect3)
@@ -159,7 +159,7 @@ class ChessUI:
                     rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                     row,col=self.player1.last_move.sqStart
                     rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                    if self.gs.kingLocation['B'] in self.gs._getAttackSquare(self.board):
+                    if self.gs.kingLocation['B'] in self.gs.getAttackSquare('WW',self.board):
                         row,col= self.gs.kingLocation['B'] 
                         rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                         pg.draw.rect(rect_surface, (255,0,0), rect3)

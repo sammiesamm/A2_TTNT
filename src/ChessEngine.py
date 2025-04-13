@@ -282,13 +282,37 @@ class GameState:
                 if self.turn == boardCopy[i][j][0]:
                     # Check type of piece
                     piece = self.board[i][j][1]
+                    # print(piece)
+                    # try:
                     moves = self.getFunctionMove[piece](i, j, boardCopy, True)
+                    # except: self.printBoard()
                     for move in moves:
                         attackSquare.append(move.sqEnd)
 
         self.turn = self.rival[self.turn]
         return attackSquare
-
+    
+    def getAttackSquare(self,turn, boardCopy):
+        attackSquare = []
+        for i in range(8):
+            for j in range(8):
+                # Check black or white
+                if turn == boardCopy[i][j][0]:
+                    # Check type of piece
+                    piece = boardCopy[i][j][1]
+                    # print(piece)
+                    # try:
+                    moves = self.getFunctionMove[piece](i, j, boardCopy, True)
+                    # except: self.printBoard()
+                    for move in moves:
+                        attackSquare.append(move.sqEnd)
+        return attackSquare
+    def printBoard(self):
+        for i in self.board:
+            for j in i:
+                print(j,end=" ")
+            print()
+        
     def _getPinAndCheckPieces(self):
 
         checks = []
