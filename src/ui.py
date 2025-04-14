@@ -65,7 +65,7 @@ class ChessUI:
                 self.reval=None
             def setmode(self,Mode):
                 self.mode=Mode
-                self.reset
+                self.reset()
             def _act(self):
                 move,_,_=self.ai.iterative_deepening_tree(self.mode+1)
                 self.last_move=move
