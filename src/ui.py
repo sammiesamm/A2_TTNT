@@ -324,23 +324,27 @@ class ChessUI:
                     elif self.mode==2:
                         mouse_pos = pg.mouse.get_pos()
                         if self.rect[0].collidepoint(mouse_pos):
+                            self.player1.reset()
                             self.player1=self.players[0]
                             self.mode=1
                         elif self.rect[1].collidepoint(mouse_pos):
                             self.player1=self.players[1]
                             self.mode=4
                         elif self.rect[2].collidepoint(mouse_pos):
+                            self.player1.reset()
                             self.player1=self.players[3]
                             self.mode=1
                     elif self.mode==3:
                         mouse_pos = pg.mouse.get_pos()
                         if self.rect[0].collidepoint(mouse_pos):
+                            self.player2.reset()
                             self.player2=self.players[0]
                             self.mode=1
                         elif self.rect[1].collidepoint(mouse_pos):
                             self.player2=self.players[2]
                             self.mode=5
                         elif self.rect[2].collidepoint(mouse_pos):
+                            self.player2.reset()
                             self.player2=self.players[3]
                             self.mode=1
                     elif self.mode== 4:
