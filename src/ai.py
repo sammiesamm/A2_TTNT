@@ -15,6 +15,7 @@ class TreeNode:
 
 class AI:
     def __init__(self, gs, turn):
+        self.brk=False
         self.gs = gs
         self.engine = AIEngine(turn)
         self.turn =turn
@@ -24,6 +25,7 @@ class AI:
         Hàm minimax kết hợp alpha-beta pruning, xây dựng cây tìm kiếm.
         Trả về: (đánh giá, chuỗi nước đi từ node này, tree_node)
         """
+        if self.brk: return None,None,None
         node_name = last_move if last_move else "Root"
         tree_node = TreeNode(name=node_name, alpha=alpha, beta=beta)
 
@@ -45,7 +47,7 @@ class AI:
                 self.gs.makeMove(move)
                 child_eval, child_moves, child_node = self.minimax_ab_tree(depth - 1, alpha, beta, False, move)
                 self.gs.undoMove()
-
+                if child_eval is None: return None,None,None
                 tree_node.add_child(child_node)
                 if child_eval > max_eval:
                     max_eval = child_eval
@@ -68,6 +70,7 @@ class AI:
                 
                 child_eval, child_moves, child_node = self.minimax_ab_tree(depth - 1, alpha, beta, True, move)
                 self.gs.undoMove()
+                if child_eval is None: return None,None,None
                 
                 tree_node.add_child(child_node)
                 if child_eval < min_eval:
@@ -93,7 +96,7 @@ class AI:
         for depth in range(1, max_depth + 1):
             
             eval_val, moves, tree = self.minimax_ab_tree(depth, float('-inf'), float('inf'), is_maximizing)
-            
+            if eval_val is None: return None,None,None
             if moves:
                 if (is_maximizing and eval_val > best_eval) or (not is_maximizing and eval_val < best_eval):
                     best_eval = eval_val

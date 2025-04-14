@@ -145,6 +145,7 @@ class AIEngine:
         return score
     def evaluation(self, gs):
         self.__checkEndGame(gs)
+        if len(gs.getValidMoves())==0: return -20000
         if self.aiTurn == 'B':
             score = self.getPiecePositionScore(gs) + AIEngine.getMaterialScore(gs)
         else:

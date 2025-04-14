@@ -1,6 +1,5 @@
 import pygame as pg
 from pygame.locals import *
-import sys
 from ai import  AI
 from ChessEngine import GameState,Move
 from random import randint
@@ -60,6 +59,7 @@ class ChessUI:
                 self.reval=None
             def setmode(self,Mode):
                 self.mode=Mode
+                self.reset
             def _act(self):
                 move,_,_=self.ai.iterative_deepening_tree(self.mode+1)
                 self.last_move=move
@@ -72,7 +72,13 @@ class ChessUI:
                 else:
                     if self.thread.is_alive(): return 0
                     self.thread=None
-                    return self.reval      
+                    return self.reval   
+            def reset(self):
+                super().reset()
+                if self.thread is not None:
+                    while self.thread.is_alive(): self.ai.brk=True
+                self.ai.brk=False
+                self.thread=None   
         class RandomBot(Player):
             def __init__(self,gs):
                 super().__init__(gs)
@@ -91,6 +97,9 @@ class ChessUI:
                     move=list_move[randint(0,len(list_move)-1)]
                     self.last_move=move
                     return self.gs.makeMove(move)
+            def reset(self):
+                super().reset()
+                self.thread=None   
         pg.init()
         self.clock = pg.time.Clock()
         
@@ -131,6 +140,12 @@ class ChessUI:
                     color = (240, 217, 181) if (row + col) % 2 == 0 else (181, 136, 99)
                     rect = (col * self.square_size, row * self.square_size, self.square_size, self.square_size)
                     pg.draw.rect(self.screen, color, rect)
+            def getKing(board,turn):
+                for row in range(8):
+                    for col in range(8):
+                        if turn+'K'==board[row][col]:
+                            return row,col
+                return None,None
             if self.turn:
                 if self.player2.last_move:
                     up_scale=5
@@ -140,8 +155,8 @@ class ChessUI:
                     rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                     row,col=self.player2.last_move.sqStart
                     rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                    if self.gs.kingLocation['W'] in self.gs.getAttackSquare('B',self.board):
-                        row,col= self.gs.kingLocation['W'] 
+                    row,col = getKing(self.board,'W')
+                    if (row,col) in self.gs.getAttackSquare('B',self.board):
                         rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                         pg.draw.rect(rect_surface, (255,0,0), rect3)
                         pg.draw.rect(rect_surface, (255,0,0), rect1)
@@ -159,8 +174,8 @@ class ChessUI:
                     rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                     row,col=self.player1.last_move.sqStart
                     rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                    if self.gs.kingLocation['B'] in self.gs.getAttackSquare('WW',self.board):
-                        row,col= self.gs.kingLocation['B'] 
+                    row,col = getKing(self.board,'B')
+                    if (row,col) in self.gs.getAttackSquare('W',self.board):
                         rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                         pg.draw.rect(rect_surface, (255,0,0), rect3)
                         pg.draw.rect(rect_surface, (255,0,0), rect1)
@@ -271,11 +286,11 @@ class ChessUI:
         if self.mode!=0 : menu()
         pg.display.flip()
     def reset(self):
+        for i in self.players: i.reset()
         self.gs.reset()
         self.updateBoard()
         self.mode=0
         self.turn =True
-        for i in self.players: i.reset()
     def updateBoard(self):
         self.board=deepcopy(self.gs.board)
     def run(self):
@@ -284,8 +299,9 @@ class ChessUI:
             events= pg.event.get()
             for event in events:
                 if event.type == QUIT:
+                    for i in self.players: i.reset()
                     pg.quit()
-                    sys.exit()
+                    exit()
                 if event.type == pg.MOUSEBUTTONDOWN:
                     if self.mode==1:
                         mouse_pos = pg.mouse.get_pos()
@@ -368,7 +384,9 @@ class ChessUI:
                 if self.mode==0: self.mode=1
                 elif self.mode ==1 and not self.lockmenu: self.mode=0
             if keys[K_LCTRL] and keys[K_z] and not current_key[K_z] :
+                for i in self.players: i.reset()
                 if self.turn: self.gs.undoMove()
+                else: self.turn = not self.turn
                 self.gs.undoMove()
                 self.updateBoard()
             if self.mode==7:
