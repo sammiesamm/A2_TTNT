@@ -12,9 +12,11 @@ class ChessUI:
             def __init__(self,gs:GameState):
                 self.gs=gs
                 self.last_move=None
+                self.check=False
             def Act(self,turn,events=None): return 1
             def reset(self):
                 self.last_move=None
+                self.check=False
         class Human(Player):
             def __init__(self,gs,size):
                 super().__init__(gs)
@@ -45,7 +47,11 @@ class ChessUI:
                                         self.last_move=move
                                         return 3
                                     self.last_move=move
-                                    return self.gs.makeMove(move)
+                                    
+                                    reval= self.gs.makeMove(move)
+                                    _,self.check=self.gs._getPinAndCheckPieces()
+                                    return reval
+                                
                 return None
             def reset(self):
                 super().reset()
@@ -72,6 +78,7 @@ class ChessUI:
                 else:
                     if self.thread.is_alive(): return 0
                     self.thread=None
+                    _,self.check=self.gs._getPinAndCheckPieces()
                     return self.reval   
             def reset(self):
                 super().reset()
@@ -96,7 +103,9 @@ class ChessUI:
                     if len(list_move)==0: return 2
                     move=list_move[randint(0,len(list_move)-1)]
                     self.last_move=move
-                    return self.gs.makeMove(move)
+                    reval= self.gs.makeMove(move)
+                    _,self.check=self.gs._getPinAndCheckPieces()
+                    return reval
             def reset(self):
                 super().reset()
                 self.thread=None   
@@ -105,7 +114,7 @@ class ChessUI:
         
         self.WIDTH=int(pg.display.get_desktop_sizes()[0][1]*0.9)
         self.screen = pg.display.set_mode((self.WIDTH, self.WIDTH))
-        pg.display.set_caption("Cờ Vua")
+        pg.display.set_caption("Chess")
     
         self.square_size = self.WIDTH // 8
     
@@ -156,7 +165,7 @@ class ChessUI:
                     row,col=self.player2.last_move.sqStart
                     rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                     row,col = getKing(self.board,'W')
-                    if (row,col) in self.gs.getAttackSquare('B',self.board):
+                    if self.player2.check:
                         rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                         pg.draw.rect(rect_surface, (255,0,0), rect3)
                         pg.draw.rect(rect_surface, (255,0,0), rect1)
@@ -175,7 +184,7 @@ class ChessUI:
                     row,col=self.player1.last_move.sqStart
                     rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                     row,col = getKing(self.board,'B')
-                    if (row,col) in self.gs.getAttackSquare('W',self.board):
+                    if self.player1.check:
                         rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                         pg.draw.rect(rect_surface, (255,0,0), rect3)
                         pg.draw.rect(rect_surface, (255,0,0), rect1)
@@ -360,21 +369,25 @@ class ChessUI:
                         mouse_pos = pg.mouse.get_pos()
                         if self.rect[3].collidepoint(mouse_pos):
                             self.gs.makeMove(self.players[0].promove,'R')
+                            _,self.players[0].check=self.gs._getPinAndCheckPieces()
                             self.updateBoard()
                             self.mode=0
                             self.turn = not self.turn
                         elif self.rect[4].collidepoint(mouse_pos):
                             self.gs.makeMove(self.players[0].promove,'N')
+                            _,self.players[0].check=self.gs._getPinAndCheckPieces()
                             self.updateBoard()
                             self.mode=0
                             self.turn = not self.turn
                         elif self.rect[5].collidepoint(mouse_pos):
                             self.gs.makeMove(self.players[0].promove,'B')
+                            _,self.players[0].check=self.gs._getPinAndCheckPieces()
                             self.updateBoard()
                             self.mode=0
                             self.turn = not self.turn
                         elif self.rect[6].collidepoint(mouse_pos):
                             self.gs.makeMove(self.players[0].promove,'Q')
+                            _,self.players[0].check=self.gs._getPinAndCheckPieces()
                             self.updateBoard()
                             self.mode=0
                             self.turn = not self.turn

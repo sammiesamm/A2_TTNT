@@ -48,6 +48,8 @@ class AI:
                 child_eval, child_moves, child_node = self.minimax_ab_tree(depth - 1, alpha, beta, False, move)
                 self.gs.undoMove()
                 if child_eval is None: return None,None,None
+                if child_eval == -20000:
+                    return  child_eval, child_moves, child_node
                 tree_node.add_child(child_node)
                 if child_eval > max_eval:
                     max_eval = child_eval
@@ -71,7 +73,8 @@ class AI:
                 child_eval, child_moves, child_node = self.minimax_ab_tree(depth - 1, alpha, beta, True, move)
                 self.gs.undoMove()
                 if child_eval is None: return None,None,None
-                
+                if child_eval == -20000:
+                    return  child_eval, child_moves, child_node
                 tree_node.add_child(child_node)
                 if child_eval < min_eval:
                     min_eval = child_eval
