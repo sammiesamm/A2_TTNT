@@ -160,16 +160,19 @@ class ChessUI:
                     up_scale=5
                     rect_surface = pg.Surface((self.WIDTH*up_scale, self.WIDTH*up_scale), pg.SRCALPHA) 
                     rect_surface.set_alpha(60) 
-                    row,col=self.player2.last_move.sqEnd
-                    rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                    row,col=self.player2.last_move.sqStart
-                    rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                    row,col = getKing(self.board,'W')
                     if self.player2.check:
+                        row,col = getKing(self.board,'W')
                         rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                         pg.draw.rect(rect_surface, (255,0,0), rect3)
-                        pg.draw.rect(rect_surface, (255,0,0), rect1)
+                        for i in self.player2.check:
+                            row,col=i[0]
+                            rect4 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                            pg.draw.rect(rect_surface, (255,0,0), rect4)
                     else:
+                        row,col=self.player2.last_move.sqEnd
+                        rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                        row,col=self.player2.last_move.sqStart
+                        rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                         pg.draw.rect(rect_surface, (150,180,0), rect1)
                         pg.draw.rect(rect_surface, (150,180,0), rect2)
                     surf=pg.transform.smoothscale(rect_surface,(self.WIDTH,self.WIDTH))
@@ -179,16 +182,19 @@ class ChessUI:
                     up_scale=5
                     rect_surface = pg.Surface((self.WIDTH*up_scale, self.WIDTH*up_scale), pg.SRCALPHA) 
                     rect_surface.set_alpha(60) 
-                    row,col=self.player1.last_move.sqEnd
-                    rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                    row,col=self.player1.last_move.sqStart
-                    rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                    row,col = getKing(self.board,'B')
                     if self.player1.check:
+                        row,col = getKing(self.board,'B')
                         rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                         pg.draw.rect(rect_surface, (255,0,0), rect3)
-                        pg.draw.rect(rect_surface, (255,0,0), rect1)
+                        for i in self.player1.check:
+                            row,col=i[0]
+                            rect4 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                            pg.draw.rect(rect_surface, (255,0,0), rect4)
                     else:
+                        row,col=self.player1.last_move.sqEnd
+                        rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                        row,col=self.player1.last_move.sqStart
+                        rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
                         pg.draw.rect(rect_surface, (150,180,0), rect1)
                         pg.draw.rect(rect_surface, (150,180,0), rect2)
                     surf=pg.transform.smoothscale(rect_surface,(self.WIDTH,self.WIDTH))
