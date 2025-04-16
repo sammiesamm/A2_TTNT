@@ -62,15 +62,12 @@ class ChessUI:
                 self.mode=1
                 self.ai=AI(self.gs,turn)
                 self.thread=None
-                self.reval=None
             def setmode(self,Mode):
                 self.mode=Mode
                 self.reset()
             def _act(self):
                 move,_,_=self.ai.iterative_deepening_tree(self.mode+1)
                 self.last_move=move
-                if self.gs.makeMove(move) ==0: self.reval= 2
-                else: self.reval= 1
             def Act(self,turn,events=None):
                 if self.thread==None:
                     self.thread=threading.Thread(target=self._act)
@@ -78,11 +75,13 @@ class ChessUI:
                 else:
                     if self.thread.is_alive(): return 0
                     self.thread=None
+                    if self.gs.makeMove(self.last_move) ==0: reval= 2
+                    else: reval= 1
                     _,self.check=self.gs._getPinAndCheckPieces()
-                    return self.reval   
+                    return reval   
             def reset(self):
                 super().reset()
-                if self.thread is not None:
+                if self.thread != None:
                     while self.thread.is_alive(): self.ai.brk=True
                 self.ai.brk=False
                 self.thread=None   
@@ -126,8 +125,6 @@ class ChessUI:
         self.rect=[Rect(self.WIDTH*0.3,1*self.WIDTH/10+self.WIDTH/4,self.WIDTH*0.4,self.WIDTH/14),
                    Rect(self.WIDTH*0.3,2*self.WIDTH/10+self.WIDTH/4,self.WIDTH*0.4,self.WIDTH/14),
                    Rect(self.WIDTH*0.3,3*self.WIDTH/10+self.WIDTH/4,self.WIDTH*0.4,self.WIDTH/14),
-              
-                   
                    Rect(self.WIDTH*0.174,self.WIDTH*0.438,self.WIDTH/8,self.WIDTH/8),
                    Rect(2*self.WIDTH*0.174,self.WIDTH*0.438,self.WIDTH/8,self.WIDTH/8),
                    Rect(3*self.WIDTH*0.174,self.WIDTH*0.438,self.WIDTH/8,self.WIDTH/8),
@@ -155,50 +152,29 @@ class ChessUI:
                         if turn+'K'==board[row][col]:
                             return row,col
                 return None,None
-            if self.turn:
-                if self.player2.last_move:
-                    up_scale=5
-                    rect_surface = pg.Surface((self.WIDTH*up_scale, self.WIDTH*up_scale), pg.SRCALPHA) 
-                    rect_surface.set_alpha(60) 
-                    if self.player2.check:
-                        row,col = getKing(self.board,'W')
-                        rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                        pg.draw.rect(rect_surface, (255,0,0), rect3)
-                        for i in self.player2.check:
-                            row,col=i[0]
-                            rect4 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                            pg.draw.rect(rect_surface, (255,0,0), rect4)
-                    else:
-                        row,col=self.player2.last_move.sqEnd
-                        rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                        row,col=self.player2.last_move.sqStart
-                        rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                        pg.draw.rect(rect_surface, (150,180,0), rect1)
-                        pg.draw.rect(rect_surface, (150,180,0), rect2)
-                    surf=pg.transform.smoothscale(rect_surface,(self.WIDTH,self.WIDTH))
-                    self.screen.blit(surf, (0, 0))  
-            else:
-                if self.player1.last_move:
-                    up_scale=5
-                    rect_surface = pg.Surface((self.WIDTH*up_scale, self.WIDTH*up_scale), pg.SRCALPHA) 
-                    rect_surface.set_alpha(60) 
-                    if self.player1.check:
-                        row,col = getKing(self.board,'B')
-                        rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                        pg.draw.rect(rect_surface, (255,0,0), rect3)
-                        for i in self.player1.check:
-                            row,col=i[0]
-                            rect4 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                            pg.draw.rect(rect_surface, (255,0,0), rect4)
-                    else:
-                        row,col=self.player1.last_move.sqEnd
-                        rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                        row,col=self.player1.last_move.sqStart
-                        rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
-                        pg.draw.rect(rect_surface, (150,180,0), rect1)
-                        pg.draw.rect(rect_surface, (150,180,0), rect2)
-                    surf=pg.transform.smoothscale(rect_surface,(self.WIDTH,self.WIDTH))
-                    self.screen.blit(surf, (0, 0))  
+            player=self.player2 if self.turn else self.player1
+            if player.last_move:
+                up_scale=5
+                rect_surface = pg.Surface((self.WIDTH*up_scale, self.WIDTH*up_scale), pg.SRCALPHA) 
+                rect_surface.set_alpha(60) 
+                if player.check:
+                    row,col = getKing(self.board,'W') if self.turn else getKing(self.board,'B')
+                    rect3 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                    pg.draw.rect(rect_surface, (255,0,0), rect3)
+                    for i in player.check:
+                        row,col=i[0]
+                        rect4 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                        pg.draw.rect(rect_surface, (255,0,0), rect4)
+                else:
+                    row,col=player.last_move.sqEnd
+                    rect1 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                    row,col=player.last_move.sqStart
+                    rect2 = (col * self.square_size*up_scale, row * self.square_size*up_scale, self.square_size*up_scale, self.square_size*up_scale)
+                    pg.draw.rect(rect_surface, (150,180,0), rect1)
+                    pg.draw.rect(rect_surface, (150,180,0), rect2)
+                surf=pg.transform.smoothscale(rect_surface,(self.WIDTH,self.WIDTH))
+                self.screen.blit(surf, (0, 0))  
+            
             if self.players[0].pickup is not None:
                 up_scale=5
                 rect_surface = pg.Surface((self.WIDTH*up_scale, self.WIDTH*up_scale), pg.SRCALPHA) 
@@ -225,9 +201,7 @@ class ChessUI:
             self.screen.blit(rect_surface, (0, 0))
             if self.mode==1 :
                 pg.draw.rect(self.screen,(50,50,50),Rect(self.WIDTH/10,self.WIDTH/10,self.WIDTH*0.8,self.WIDTH*0.8),border_radius=self.WIDTH//40)
-                pg.draw.rect(self.screen,(255,255,255),self.rect[0],border_radius=self.WIDTH//40)
-                pg.draw.rect(self.screen,(255,255,255),self.rect[1],border_radius=self.WIDTH//40)
-                pg.draw.rect(self.screen,(255,255,255),self.rect[2],border_radius=self.WIDTH//40)
+                [pg.draw.rect(self.screen,(255,255,255),self.rect[i],border_radius=self.WIDTH//40) for i in range(3)]
                 text_surf= self.font.render("MENU",True,(255,255,255))
                 self.screen.blit(text_surf,text_surf.get_rect(center=(self.WIDTH*0.5,self.WIDTH*0.25)))
                 text_surf= self.font1.render("NEW GAME",True,(0,0,0))
@@ -239,9 +213,7 @@ class ChessUI:
             elif self.mode==2 or self.mode==3:
                 
                 pg.draw.rect(self.screen,(50,50,50),Rect(self.WIDTH/10,self.WIDTH/10,self.WIDTH*0.8,self.WIDTH*0.8),border_radius=self.WIDTH//40)
-                pg.draw.rect(self.screen,(255,255,255),self.rect[0],border_radius=self.WIDTH//40)
-                pg.draw.rect(self.screen,(255,255,255),self.rect[1],border_radius=self.WIDTH//40)
-                pg.draw.rect(self.screen,(255,255,255),self.rect[2],border_radius=self.WIDTH//40)
+                [pg.draw.rect(self.screen,(255,255,255),self.rect[i],border_radius=self.WIDTH//40) for i in range(3)]
                 if self.mode==2:
                     if type(self.player1) is type(self.players[0]): idx=0
                     elif type(self.player1) is type(self.players[1]): idx = 1
@@ -261,9 +233,7 @@ class ChessUI:
                 self.screen.blit(text_surf,text_surf.get_rect(center=(self.WIDTH*0.5,self.WIDTH*0.59)))
             elif self.mode==4 or self.mode==5:
                 pg.draw.rect(self.screen,(50,50,50),Rect(self.WIDTH/10,self.WIDTH/10,self.WIDTH*0.8,self.WIDTH*0.8),border_radius=self.WIDTH//40)
-                pg.draw.rect(self.screen,(255,255,255),self.rect[0],border_radius=self.WIDTH//40)
-                pg.draw.rect(self.screen,(255,255,255),self.rect[1],border_radius=self.WIDTH//40)
-                pg.draw.rect(self.screen,(255,255,255),self.rect[2],border_radius=self.WIDTH//40)
+                [pg.draw.rect(self.screen,(255,255,255),self.rect[i],border_radius=self.WIDTH//40) for i in range(3)]
                 if self.mode==4: idx=self.players[1].mode-1 
                 else: idx=self.players[2].mode-1 
                 pg.draw.rect(self.screen,(120,180,0),self.rect[idx],border_radius=self.WIDTH//40,width=5)
@@ -287,14 +257,9 @@ class ChessUI:
                 pg.draw.rect(self.screen,(50,50,50),Rect(self.WIDTH*0.1,self.WIDTH*0.4,self.WIDTH*0.8,self.WIDTH*0.2),border_radius=self.WIDTH//40)
                 if self.turn: p='W'
                 else: p='B'
-                pg.draw.rect(self.screen,(255,255,255),self.rect[3],border_radius=self.WIDTH//80)
-                pg.draw.rect(self.screen,(255,255,255),self.rect[4],border_radius=self.WIDTH//80)
-                pg.draw.rect(self.screen,(255,255,255),self.rect[5],border_radius=self.WIDTH//80)
-                pg.draw.rect(self.screen,(255,255,255),self.rect[6],border_radius=self.WIDTH//80)
-                self.screen.blit(self.pieces[p+"R"],(self.WIDTH*0.174,self.WIDTH*0.438))
-                self.screen.blit(self.pieces[p+"N"],(2*self.WIDTH*0.174,self.WIDTH*0.438))
-                self.screen.blit(self.pieces[p+"B"],(3*self.WIDTH*0.174,self.WIDTH*0.438))
-                self.screen.blit(self.pieces[p+"Q"],(4*self.WIDTH*0.174,self.WIDTH*0.438))
+                [pg.draw.rect(self.screen,(255,255,255),self.rect[i],border_radius=self.WIDTH//80) for i in range(3,7)]
+                p1='RNBQ'
+                [self.screen.blit(self.pieces[p+p1[i]],((i+1)*self.WIDTH*0.174,self.WIDTH*0.438)) for i in range(4)]
         
         draw_board()
         draw_pieces()
@@ -329,78 +294,37 @@ class ChessUI:
                             self.mode=3
                     elif self.mode==2:
                         mouse_pos = pg.mouse.get_pos()
-                        if self.rect[0].collidepoint(mouse_pos):
-                            self.player1.reset()
-                            self.player1=self.players[0]
-                            self.mode=1
-                        elif self.rect[1].collidepoint(mouse_pos):
-                            self.player1=self.players[1]
-                            self.mode=4
-                        elif self.rect[2].collidepoint(mouse_pos):
-                            self.player1.reset()
-                            self.player1=self.players[3]
-                            self.mode=1
+                        for i in range(3):
+                            if self.rect[i].collidepoint(mouse_pos):
+                                self.player1.reset()
+                                self.player1=self.players[3] if i ==2 else self.players[i] 
+                                self.mode=4 if i==1 else 1
+                                break
                     elif self.mode==3:
                         mouse_pos = pg.mouse.get_pos()
-                        if self.rect[0].collidepoint(mouse_pos):
-                            self.player2.reset()
-                            self.player2=self.players[0]
-                            self.mode=1
-                        elif self.rect[1].collidepoint(mouse_pos):
-                            self.player2=self.players[2]
-                            self.mode=5
-                        elif self.rect[2].collidepoint(mouse_pos):
-                            self.player2.reset()
-                            self.player2=self.players[3]
-                            self.mode=1
-                    elif self.mode== 4:
+                        for i in range(3):
+                            if self.rect[i].collidepoint(mouse_pos):
+                                self.player2.reset()
+                                self.player2=self.players[0] if i ==0 else self.players[i+1] 
+                                self.mode=5 if i==1 else 1
+                                break
+                    elif self.mode== 4 or self.mode== 5:
                         mouse_pos = pg.mouse.get_pos()
-                        if self.rect[0].collidepoint(mouse_pos):
-                            self.players[1].setmode(1)
-                            self.mode=1
-                        elif self.rect[1].collidepoint(mouse_pos):
-                            self.players[1].setmode(2)
-                            self.mode=1
-                        elif self.rect[2].collidepoint(mouse_pos):
-                            self.players[1].setmode(3)
-                            self.mode=1
-                    elif self.mode== 5:
-                        mouse_pos = pg.mouse.get_pos()
-                        if self.rect[0].collidepoint(mouse_pos):
-                            self.players[2].setmode(1)
-                            self.mode=1
-                        elif self.rect[1].collidepoint(mouse_pos):
-                            self.players[2].setmode(2)
-                            self.mode=1
-                        elif self.rect[2].collidepoint(mouse_pos):
-                            self.players[2].setmode(3)
-                            self.mode=1
+                        for i in range(3):
+                            if self.rect[i].collidepoint(mouse_pos):
+                                self.players[self.mode-3].setmode(i+1)
+                                self.mode=1
+                                break
                     elif self.mode==6:
                         mouse_pos = pg.mouse.get_pos()
-                        if self.rect[3].collidepoint(mouse_pos):
-                            self.gs.makeMove(self.players[0].promove,'R')
-                            _,self.players[0].check=self.gs._getPinAndCheckPieces()
-                            self.updateBoard()
-                            self.mode=0
-                            self.turn = not self.turn
-                        elif self.rect[4].collidepoint(mouse_pos):
-                            self.gs.makeMove(self.players[0].promove,'N')
-                            _,self.players[0].check=self.gs._getPinAndCheckPieces()
-                            self.updateBoard()
-                            self.mode=0
-                            self.turn = not self.turn
-                        elif self.rect[5].collidepoint(mouse_pos):
-                            self.gs.makeMove(self.players[0].promove,'B')
-                            _,self.players[0].check=self.gs._getPinAndCheckPieces()
-                            self.updateBoard()
-                            self.mode=0
-                            self.turn = not self.turn
-                        elif self.rect[6].collidepoint(mouse_pos):
-                            self.gs.makeMove(self.players[0].promove,'Q')
-                            _,self.players[0].check=self.gs._getPinAndCheckPieces()
-                            self.updateBoard()
-                            self.mode=0
-                            self.turn = not self.turn
+                        p='RNBQ'
+                        for i in range(3,7):
+                            if self.rect[i].collidepoint(mouse_pos):
+                                self.gs.makeMove(self.players[0].promove,p[i-3])
+                                _,self.players[0].check=self.gs._getPinAndCheckPieces()
+                                self.updateBoard()
+                                self.mode=0
+                                self.turn = not self.turn
             self.clock.tick(60)
             current_key=pg.key.get_pressed()
             if  keys[K_ESCAPE] and  not current_key[K_ESCAPE]  :
@@ -416,27 +340,17 @@ class ChessUI:
                 if any(keys):
                     self.mode=1
                     self.lockmenu=True
-            elif self.mode==0:
-                if self.turn: 
-                    match self.player1.Act(events=events,turn='W'): 
-                        case 1:
-                            self.turn=False
-                            self.updateBoard()
-                        case 2:self.mode=7
-                        case 3:self.mode=6
-                else: 
-                    match self.player2.Act(events=events,turn='B'):
-                        case 1:
-                            self.turn=True
-                            self.updateBoard()
-                        case 2:self.mode=7
-                        case 3:self.mode=6
+            if self.mode==0:
+                match self.player1.Act(events=events,turn='W') if self.turn else self.player2.Act(events=events,turn='B'): 
+                    case 1:
+                        self.turn=not self.turn
+                        self.updateBoard()
+                    case 2:self.mode=7
+                    case 3:self.mode=6
+                    
             self.display()
-            
             keys=pg.key.get_pressed()
             
-            
-
 class UI:
     def __init__(self):pass
     def run(self):
