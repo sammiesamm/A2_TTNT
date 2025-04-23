@@ -47,7 +47,6 @@ class ChessUI:
                                         self.last_move=move
                                         return 3
                                     self.last_move=move
-                                    
                                     reval= self.gs.makeMove(move)
                                     _,self.check=self.gs._getPinAndCheckPieces()
                                     return reval

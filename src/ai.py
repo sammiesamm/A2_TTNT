@@ -43,7 +43,6 @@ class AI:
                 if alpha >= beta: 
                     tree_node.pruned = True
                     break
-
                 self.gs.makeMove(move)
                 child_eval, child_moves, child_node = self.minimax_ab_tree(depth - 1, alpha, beta, False, move)
                 self.gs.undoMove()
@@ -65,9 +64,7 @@ class AI:
                 if beta <= alpha:  
                     tree_node.pruned = True
                     break
-
                 self.gs.makeMove(move)
-                
                 child_eval, child_moves, child_node = self.minimax_ab_tree(depth - 1, alpha, beta, True, move)
                 self.gs.undoMove()
                 if child_eval is None: return None,None,None
@@ -87,13 +84,15 @@ class AI:
         Hàm iterative deepening kết hợp in cây tìm kiếm dạng cấu trúc.
         Sau mỗi độ sâu, chờ người dùng bấm Enter để hiển thị cây tìm kiếm.
         """
+       
         best_move = None
         is_maximizing = True if self.gs.getTurn() == self.turn else False
         best_eval = float('-inf') if is_maximizing else float('inf')
         depth_reached = 0
         for depth in range(1, max_depth + 1):
             eval_val, moves, tree = self.minimax_ab_tree(depth, float('-inf'), float('inf'), is_maximizing)
-            if eval_val is None: return None,None,None
+            if eval_val is None: 
+                return None,None,None
             if moves:
                 if (is_maximizing and eval_val > best_eval) or (not is_maximizing and eval_val < best_eval):
                     best_eval = eval_val

@@ -10,5 +10,6 @@ Giao diện có thể là Console hoặc GUI.
 - `docs/`: Tài liệu, sơ đồ hệ thống, hướng dẫn.
 
 ## Hướng dẫn cài đặt và chạy dự án
+- chạy lệnh <pip install -r requirements.txt> để tải các thư viện cần thiết 
 - Trong /src, chạy lệnh: python main.py
 ...
