@@ -79,6 +79,27 @@ class AI:
             tree_node.value = min_eval if min_eval != float('inf') else beta
             return tree_node.value, best_moves, tree_node
 
+    # def iterative_deepening_tree(self, max_depth):
+    #     """
+    #     Hàm iterative deepening kết hợp in cây tìm kiếm dạng cấu trúc.
+    #     Sau mỗi độ sâu, chờ người dùng bấm Enter để hiển thị cây tìm kiếm.
+    #     """
+       
+    #     best_move = None
+    #     is_maximizing = True if self.gs.getTurn() == self.turn else False
+    #     best_eval = float('-inf') if is_maximizing else float('inf')
+    #     depth_reached = 0
+    #     for depth in range(1, max_depth + 1):
+    #         eval_val, moves, tree = self.minimax_ab_tree(depth, float('-inf'), float('inf'), is_maximizing)
+    #         if eval_val is None: 
+    #             return None,None,None
+    #         if moves:
+    #             if (is_maximizing and eval_val > best_eval) or (not is_maximizing and eval_val < best_eval):
+    #                 best_eval = eval_val
+    #                 best_move = moves[0]
+    #         depth_reached = depth
+    #     return best_move, best_eval, depth_reached
+    
     def iterative_deepening_tree(self, max_depth):
         """
         Hàm iterative deepening kết hợp in cây tìm kiếm dạng cấu trúc.
@@ -88,16 +109,13 @@ class AI:
         best_move = None
         is_maximizing = True if self.gs.getTurn() == self.turn else False
         best_eval = float('-inf') if is_maximizing else float('inf')
-        depth_reached = 0
-        for depth in range(1, max_depth + 1):
-            eval_val, moves, tree = self.minimax_ab_tree(depth, float('-inf'), float('inf'), is_maximizing)
-            if eval_val is None: 
-                return None,None,None
-            if moves:
-                if (is_maximizing and eval_val > best_eval) or (not is_maximizing and eval_val < best_eval):
-                    best_eval = eval_val
-                    best_move = moves[0]
-            depth_reached = depth
-        return best_move, best_eval, depth_reached
+        eval_val, moves, _ = self.minimax_ab_tree( max_depth, float('-inf'), float('inf'), is_maximizing)
+        if eval_val is None: 
+            return None,None,None
+        if moves:
+            if (is_maximizing and eval_val > best_eval) or (not is_maximizing and eval_val < best_eval):
+                best_eval = eval_val
+                best_move = moves[0]
+        return best_move, best_eval, max_depth
 
 
